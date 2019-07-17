@@ -67,14 +67,18 @@ process_emqx_conf() {
 
 cp -r emqx $NEW_EMQX
 
+## change the rpc ports
+$SED_REPLACE 's|tcp_server_port[ \t]*=.*|tcp_server_port = 5369|g' emqx/etc/emqx.conf
+$SED_REPLACE 's|tcp_client_port[ \t]*=.*|tcp_client_port = 5370|g' emqx/etc/emqx.conf
+$SED_REPLACE 's|tcp_client_port[ \t]*=.*|tcp_client_port = 5369|g' "$NEW_EMQX/etc/emqx.conf"
+$SED_REPLACE 's|tcp_server_port[ \t]*=.*|tcp_server_port = 5370|g' "$NEW_EMQX/etc/emqx.conf"
+
 conf_ext=*.conf
 find $NEW_EMQX -name "${conf_ext}" | while read conf; do
     if [ "${conf##*/}" = 'emqx.conf' ]
       then
         declare -a entries_to_be_inc=("node.dist_listen_min"
                                       "dist_listen_max"
-                                      "tcp_server_port"
-                                      "tcp_client_port"
                                       "listener.tcp.external"
                                       "listener.tcp.internal"
                                       "listener.ssl.external"
@@ -96,4 +100,3 @@ find $NEW_EMQX -name "${conf_ext}" | while read conf; do
         echo "."
     fi
 done
-
